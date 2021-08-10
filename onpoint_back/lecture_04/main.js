@@ -1,19 +1,9 @@
 #!/usr/bin/env node
 const readline = require("readline");
 const fs = require("fs");
-const yargs = require("yargs/yargs");
-const { hideBin } = require("yargs/helpers");
 
 const Game = require("./game");
-
-const argv = yargs(hideBin(process.argv)).check((argv, options) => {
-  const action = argv._;
-  if (action.length !== 1)
-    throw new Error(
-      "Что-то пошло не так :( Ожидаю один аргумент, он же путь до файла"
-    );
-  return true;
-}).argv;
+const argv = require("./path");
 
 const game = new Game(fs.createWriteStream(argv._[0]));
 
