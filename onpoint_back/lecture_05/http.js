@@ -37,6 +37,10 @@ const getHTTPRes = (URL) =>
       res.on("data", (chunk) => (rawData += chunk));
       res.on("end", () => {
         let parsedData = JSON.parse(rawData);
+        if (parsedData.success === false)
+          return console.log(
+            "Can't find info about weather in this city, try another"
+          );
         console.log(
           `Info about ${parsedData.location.name}, ${parsedData.location.country} weather`
         );
