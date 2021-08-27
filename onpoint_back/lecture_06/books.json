@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "title": "title_1",
+    "description": "description_1",
+    "authors": ["author_1", "author_2"],
+    "cover": "./public/img_1.png"
+  },
+  {
+    "id": 2,
+    "title": "title_2",
+    "description": "description_2",
+    "authors": ["author_1", "author_2"],
+    "cover": "./public/img_2.png"
+  },
+  {
+    "id": 4,
+    "title": "new title from put",
+    "description": "description_4",
+    "authors": ["author_1", "author_7"],
+    "cover": "./public/img_4.png"
+  },
+  {
+    "id": 5,
+    "title": "title_5",
+    "description": "description_5",
+    "authors": ["author_1", "author_7"],
+    "cover": "./public/img_5.png"
+  }
+]

@@ -1,17 +1,22 @@
 const express = require("express");
 const router = express.Router();
+const { getBooks } = require("../streams/readStream");
+const { saveBooks } = require("../streams/writeStream");
+const { getMaxId } = require("../utils/getMaxId");
 
-const Books = require("../template.json");
+const Books = require("../books.json");
 
 //GET all books
-router.get("/", (req, res) => {
-  res.send(Books);
+router.get("/", async (req, res) => {
+  const books = await getBooks();
+  res.send(books);
 });
 
 //GET book by id
-router.get("/:reqId", (req, res) => {
+router.get("/:reqId", async (req, res) => {
   const { reqId } = req.params;
-  const book = Books.filter(({ id }) => id === reqId)[0];
+  const books = await getBooks();
+  const book = books.filter(({ id }) => id === reqId)[0];
   console.log(book);
   if (!book) {
     res.status(404);
@@ -21,35 +26,47 @@ router.get("/:reqId", (req, res) => {
 });
 
 //POST create new book
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const newBook = req.body;
-  console.log(newBook);
-  Books.push(newBook);
-  res.send(newBook);
+  const books = await getBooks();
+  const maxId = getMaxId(books);
+  const newBookWithId = { id: maxId + 1, ...newBook };
+  books.push(newBookWithId);
+  try {
+    await saveBooks(books);
+    res.send(newBookWithId);
+  } catch (err) {
+    res.status(500).send(`Error: internal ${err}`);
+  }
 });
 
 //PUT to update existing book
-router.put("/:reqId", (req, res) => {
+router.put("/:reqId", async (req, res) => {
   const { reqId } = req.params;
   const updParams = req.body;
-  const book = Books.filter(({ id }) => id === reqId)[0];
-  if (!book) {
-    res.status(404);
+  const books = await getBooks();
+  const idx = books.findIndex(({ id }) => id === Number(reqId));
+  if (idx === -1) {
     const content = `404 | book with id ${reqId} not found`;
-    res.send(content);
+    res.status(404).send(content);
   } else {
+    const currBook = books[idx];
     console.log(updParams);
-    const newBook = { ...book, ...updParams };
+    const newBook = { ...currBook, ...updParams };
+    books[idx] = newBook;
+    await saveBooks(books);
     res.send(newBook);
   }
 });
 
 //DELETE
-router.delete("/:reqId", (req, res) => {
+router.delete("/:reqId", async (req, res) => {
   const { reqId } = req.params;
-  const book = Books.filter(({ id }) => id === reqId)[0];
-  if (book) {
-    //TODO здесь будет идти удаление
+  const books = await getBooks();
+  const idx = books.findIndex(({ id }) => id === Number(reqId));
+  if (idx !== -1) {
+    books.splice(idx, 1);
+    await saveBooks(books);
     res.send("OK | success");
   } else {
     res.status(500);
